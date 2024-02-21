@@ -1,2 +1,2 @@
 # Currency-converter
-A project to Convert Currencies.
+A Project to Convert Currencies.
