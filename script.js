@@ -1,67 +1,66 @@
-document.getElementById("currencyForm").addEventListener("submit", function(event) {
-    event.preventDefault(); 
-    
-    let amt = parseFloat(document.getElementById("amount").value);
-    let curr = document.getElementById("currency").value;
-    let curr2 = document.getElementById("currency2").value;
-    
-   
-    let convertedAmt = convertCurrency(amt, curr, curr2);
-    
-    
-    document.getElementById("amount2").value = convertedAmt;
-   
-});
+let currencyCodes; // Declare currencyCodes variable
 
-
-function convertCurrency(amount, fromCurrency, toCurrency) {
-   
-  
-    if(fromCurrency==="USD" && toCurrency==="INR")
-    {
-        return amount * 83.0244; 
-    }
-    if(fromCurrency==="USD" && toCurrency==="EUR")
-    {
-        return amount * 0.93; 
-    }
-    if(fromCurrency==="USD" && toCurrency==="AED")
-    {
-        return amount * 3.67; 
-    }
-    if(fromCurrency==="EUR" && toCurrency==="USD")
-    {
-        return amount * 1.08; 
-    }
-    if(fromCurrency==="EUR" && toCurrency==="INR")
-    {
-        return amount * 89.66; 
-    }
-    if(fromCurrency==="EUR" && toCurrency==="AED")
-    {
-        return amount * 3.97; 
-    }
-    if (fromCurrency === "INR" && toCurrency === "USD") {
-        return amount * 0.012; 
-    }
-    if (fromCurrency === "INR" && toCurrency === "EUR") {
-        return amount * 0.011; 
-    }
-    if (fromCurrency === "INR" && toCurrency === "AED") {
-        return amount * 0.044; 
-    }
-    if (fromCurrency === "AED" && toCurrency === "USD") {
-        return amount * 0.27; 
-    }
-    if (fromCurrency === "AED" && toCurrency === "INR") {
-        return amount * 22.57; 
-    }
-    if (fromCurrency === "AED" && toCurrency === "EUR") {
-        return amount * 0.25; 
-    }
-
-    else {
+// Fetch data and assign currencyCodes inside the Promise chain
+fetch('https://v6.exchangerate-api.com/v6/de73579d91bf20a8392d5b1d/latest/USD')
+    .then(response => response.json())
+    .then(data => {
+        //storing the json file
+        const datajson=data;
+        currencyCodes = Object.keys(data.conversion_rates);
+         const options=document.getElementById("fromcurrency");
         
-        return "Unsupported conversion";
-    }
-}
+         currencyCodes.forEach(element => {
+            const option=document.createElement('option');
+            option.value=element;
+            option.innerText=element;
+            option.setAttribute('id',element);
+            options.appendChild(option);
+            console.log(option);    
+         });
+
+         const options2=document.getElementById("tocurrency");
+        
+         currencyCodes.forEach(element => {
+            const option=document.createElement('option');
+            option.value=element;
+            option.id=element;
+            option.innerText=element;
+            option.setAttribute('id', element);
+            options2.appendChild(option);
+            console.log(option);    
+         }
+        
+        );
+
+        document.getElementById("currencyForm").addEventListener("submit", function(event) {
+            event.preventDefault(); 
+            
+            let amt = parseFloat(document.getElementById("amount").value);
+            let fromCurrency=document.getElementById("fromcurrency").value
+            let toCurrency=document.getElementById("tocurrency").value
+
+            let convertedAmt = convertCurrency(amt, fromCurrency, toCurrency);
+            
+            
+            document.getElementById("amount2").value = convertedAmt;
+           
+        });
+
+        function convertCurrency(amt,fromCurrency,toCurrency)
+        {
+            //searching for the value of currencies
+            //logic would be converting firs the from value to usd and
+            //then checking usd value of that amount in the to currency
+            
+
+            let fromamt=amt/datajson.conversion_rates[fromCurrency];//this is the conversion of the amount to usd
+            let toamt=fromamt*datajson.conversion_rates[toCurrency];
+            
+            return toamt;
+
+            
+        }
+    })
+    .catch(error => {
+        console.error("An error has occurred:", error);
+    });
